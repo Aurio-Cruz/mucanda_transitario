@@ -1,0 +1,243 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Pagina</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        // Redirecionar para a página de login se tentar voltar após logout
+        if (performance.navigation.type == 2) {
+            location.reload(true);
+        }
+    </script>
+    <!-- <link rel="stylesheet" href="{% static 'css/solicitacao_produtos.css' %}"> -->
+    <link rel="website icon" type="PNG" href="{% static 'img/favicon simulador.png' %}">
+    <style>
+        /* Seu estilo CSS aqui */
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            margin: 5% auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 5%;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .header-left,
+        .header-right {
+            flex: 1; /* Distribui o espaço igualmente entre os elementos */
+        }
+
+        .header-left {
+            margin-left: 10px;
+        }
+
+        .header-right {
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        form {
+            max-width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea,
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px; /* Adiciona espaço entre os campos */
+            box-sizing: border-box;
+            resize: vertical;
+            border-radius: 5px; /* Margens arredondadas */
+            border: 1px solid #ccc; /* Cor da borda padrão */
+        }
+
+        button[type="submit"] {
+            background-color: #4caf50; /* Cor de fundo verde */
+            color: white; /* Cor do texto branco */
+            border-color: #4caf50; /* Cor da borda verde */
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            font-size: 13px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1em 2%;
+            clear: both;
+            box-sizing: border-box;
+        }
+
+        .required {
+            color: red; /* Cor dos asteriscos */
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 90%;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select,
+            textarea,
+            button[type="submit"] {
+                margin-bottom: 10px; /* Reduz o espaço entre os campos */
+            }
+
+            .calculator-icon {
+                font-size: 24px; /* Reduz o tamanho do ícone para telas menores */
+                vertical-align: middle;
+                color: inherit;
+                margin-right: 5px;
+            }
+        }
+
+
+        /* Dentro da regra @media only screen and (min-width: 600px), para telas maiores */
+        @media only screen and (min-width: 600px) {
+            .calculator-icon {
+                font-size: 40px; /* Aumenta o tamanho do ícone */
+                vertical-align: middle;
+                color: #4caf50; /* Cor verde */
+                margin-right: 5px;
+            }
+
+            .header-right {
+                flex: 1;
+                text-align: right;
+            }
+
+            .logout-button {
+                padding: 10px 15px;
+            }
+        }
+
+        .success-message {
+            background-color: rgba(0, 0, 0, 0.8); /* Fundo escuro */
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 0 auto 20px; /* Centralizado verticalmente e margem inferior */
+            max-width: 500px; /* Limita a largura da mensagem */
+            text-align: center; /* Centralizado horizontalmente */
+        }
+
+        .success-message button {
+            background-color: white;
+            color: #4caf50;
+            border: 2px solid #4caf50;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-left">
+        <a href="{% url 'index' %}">
+            <i class="fas fa-calculator calculator-icon"></i>
+            <span style="color: white;">Simulador</span>
+        </a>
+    </div>
+    <br>
+    <div class="header-right">
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="logout-button" style="border-color: #007bff;"><i class="fas fa-sign-out-alt" style="color: #007bff;"></i> Terminar Sessão</button>
+        </form>
+    </div>
+</header>
+{% if success_message %}
+<div class="success-message">
+    O formulário foi enviado com sucesso! Entraremos em contato em breve.
+    <form action="{% url 'index' %}">
+        <button type="submit">OK</button>
+    </form>
+</div>
+{% endif %}
+<div class="container">
+    <center><h1><i class="fas fa-paper-plane"></i></h1> </center>
+    
+    <form method="post" enctype="multipart/form-data">
+        <p style="font-size: 13px;" class="instructions required-field">Campos obrigatórios são marcados com um asterisco (<span class="required">*</span>)</p>
+        {% csrf_token %}
+        <div>
+            <label for="usuario">Usuário<span class="required">*</span></label>
+            <input type="text" id="usuario" name="usuario" placeholder="Digite seu nome de usuário">
+            <span class="error-message">{{ form.usuario.errors }}</span>
+        </div>
+        <div>
+            <label for="nome_produto">Nome do Produto<span class="required">*</span></label>
+            <input type="text" id="nome_produto" name="nome_produto" placeholder="Digite o nome do produto">
+            <span class="error-message">{{ form.nome_produto.errors }}</span>
+        </div>
+        <div>
+            <label for="descricao_produto">Descrição do Produto<span class="required">*</span></label>
+            <textarea id="descricao_produto" name="descricao_produto" placeholder="Descreva o produto"></textarea>
+            <span class="error-message">{{ form.descricao_produto.errors }}</span>
+        </div>
+        <div>
+            <label for="pais_origem">País de Origem<span class="required">*</span></label>
+            <input type="text" id="pais_origem" name="pais_origem" placeholder="Digite o país de origem">
+            <span class="error-message">{{ form.pais_origem.errors }}</span>
+        </div>
+        <div>
+            <label for="quantidade">Quantidade<span class="required">*</span></label>
+            <input type="number" id="quantidade" name="quantidade" placeholder="Informe a quantidade">
+            <span class="error-message">{{ form.quantidade.errors }}</span>
+        </div>
+        <div>
+            <label for="imagem">Imagem<span class="required">*</span></label>
+            <input type="file" id="imagem" name="imagem" placeholder="Escolha uma imagem">
+            <span class="error-message">{{ form.imagem.errors }}</span>
+        </div>
+        <br>
+        <button type="submit">Enviar</button>
+    </form>
+</div>
+<footer>
+    <p>&copy; 2024 MUCANDA TRANSITÁRIO | TODOS OS DIREITOS RESERVADOS | E-mail: suporteaoa.simulador@gmail.com | <a href="https://mucandagroup.com/nossos-servicos/" target="_blank" style="color: yellow;">Serviços aduaneiros</a></p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/pagamento_email.css' %}">
+    <title>Cobrança de Pagamento</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Prezado(a) Cliente,</h2>
+        <p>Esperamos que esteja bem. Gostaríamos de lembrar sobre a necessidade de efetuar o pagamento para puder usufruir do sistema:</p>
+        <ul>
+            <li><strong>Transferência Bancária:</strong> Banco BAI<br> Conta Corrente em nome de: Aurio do Nascimento da Cruz<br> IBAN: AO06 0040 0000 1387 3917 1017 0</li>
+            <li><strong>Referência Multicaixa:</strong> Utilize a referência XXXXXXXXX no terminal multicaixa mais próximo.</li>
+        </ul>
+        <p>Após efetuar o pagamento, por favor, envie o comprovativo para <a href="mailto:suporteaoa.simulador@gmail.com">suporteaoa.simulador@gmail.com</a> para agilizar o processo de confirmação.</p>
+        <p>Aproveitamos também para destacar uma vantagem exclusiva para clientes como você: o acesso ao nosso Simulador de Taxas Aduaneiras de Importação. Ao utilizar esta ferramenta, você terá as seguintes vantagens:</p>
+        <ul>
+            <li>Previsibilidade: Planeje com antecedência os custos associados às suas importações, evitando surpresas desagradáveis.</li>
+            <li>Otimização de Custos: Identifique oportunidades para reduzir suas despesas com taxas de importação através da análise detalhada proporcionada pelo simulador.</li>
+            <li>Conformidade Aduaneira: Garanta o cumprimento das regulamentações aduaneiras, evitando possíveis penalidades e atrasos nas suas operações.</li>
+            <li>Agilidade: Simplifique o processo de cálculo de taxas e impostos, economizando tempo e recursos valiosos da sua empresa.</li>
+        </ul>
+        <p>Para obter acesso ao nosso Simulador de Taxas Aduaneiras de Importação, basta efetuar o pagamento e entrar em contato conosco. Estamos à disposição para fornecer todo o suporte necessário.</p>
+        <div class="footer">
+            <p>Desde já, agradecemos pela sua parceria e confiança em nossos serviços.</p>
+            <p>Atenciosamente,<br>Mucanda Transitário</p>
+        </div>
+    </div>
+</body>
+</html>

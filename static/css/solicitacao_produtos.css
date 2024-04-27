@@ -1,0 +1,121 @@
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 95%;
+    max-width: 800px;
+    margin: 5% auto;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 5%;
+    box-sizing: border-box;
+}
+
+header {
+    background-color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.header-left,
+.header-right {
+    flex: 1; /* Distribui o espaço igualmente entre os elementos */
+}
+
+.header-left {
+    margin-left: 10px;
+}
+
+.header-right {
+    text-align: right;
+    margin-right: 10px;
+}
+
+form {
+    max-width: 100%;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea,
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px; /* Adiciona espaço entre os campos */
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+footer {
+    font-size: 13px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1em 2%;
+    clear: both;
+    box-sizing: border-box;
+}
+
+@media only screen and (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea,
+    button[type="submit"] {
+        margin-bottom: 10px; /* Reduz o espaço entre os campos */
+    }
+
+    .calculator-icon {
+        font-size: 24px; /* Reduz o tamanho do ícone para telas menores */
+        vertical-align: middle;
+        color: inherit;
+        margin-right: 5px;
+    }
+}
+
+
+/* Dentro da regra @media only screen and (min-width: 600px), para telas maiores */
+@media only screen and (min-width: 600px) {
+    .calculator-icon {
+        font-size: 40px; /* Aumenta o tamanho do ícone */
+        vertical-align: middle;
+        color: inherit;
+        margin-right: 5px;
+    }
+
+    .header-right {
+        flex: 1;
+        text-align: right;
+    }
+
+    .logout-button {
+        padding: 10px 15px;
+    }
+}

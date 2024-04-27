@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Sucesso - Pedido de Adesão</title>
+    <link rel="stylesheet" href="{% static 'css/tela_sucesso.css' %}">
+    <link rel="website icon" type="PNG" href="{% static 'img/favicon simulador.png' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            <i class="fas fa-calculator"></i>
+        </div>
+        <h1>Sucesso - Pedido de Adesão</h1>
+        <p>Seu pedido de adesão foi recebido com sucesso!</p>
+        <p>Agora, seu pedido será analisado pelos nossos administradores</p>
+        <p>Você receberá uma mensagem em seu email pessoal com os detalhes de sua adesão.</p>
+        <p>Por favor, verifique sua caixa de entrada, incluindo a pasta de spam.</p>
+        <p> Tempo máximo de resposta, 3 horas.</p>
+        <p>Obrigado por se juntar a nós!</p>
+        <button class="btn-sair" onclick="window.location.href='/';">Sair</button>
+    </div>
+    <script>
+        window.onload = function() {
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, null, window.location.href);
+                window.onpopstate = function() {
+                    window.history.go(1); // Redireciona para a página inicial
+                };
+            }
+        };
+    </script>
+</body>
+</html>

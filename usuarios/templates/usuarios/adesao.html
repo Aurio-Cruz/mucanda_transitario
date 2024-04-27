@@ -1,0 +1,278 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adesão</title>
+    <link rel="stylesheet" href="{% static 'css/tela_cadastro.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/solicitacao_produtos.css' %}">
+    <link rel="website icon" type="PNG" href="{% static 'img/favicon simulador.png' %}">
+    <style>
+        /* Incluir estilos CSS da primeira página aqui */
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            margin: 5% auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 5%;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .header-left,
+        .header-right {
+            flex: 1;
+        }
+
+        .header-left {
+            margin-left: 10px;
+        }
+
+        .header-right {
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        form {
+            max-width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea,
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            resize: vertical;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button[type="submit"] {
+            background-color: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            font-size: 13px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1em 2%;
+            clear: both;
+            box-sizing: border-box;
+        }
+
+        .required {
+            color: red;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 90%;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select,
+            textarea,
+            button[type="submit"] {
+                margin-bottom: 10px;
+            }
+
+            .calculator-icon {
+                font-size: 24px;
+                vertical-align: middle;
+                color: inherit;
+                margin-right: 5px;
+            }
+        }
+
+        @media only screen and (min-width: 600px) {
+            .calculator-icon {
+                font-size: 40px;
+                vertical-align: middle;
+                color: #4caf50;
+                margin-right: 5px;
+            }
+
+            .header-right {
+                flex: 1;
+                text-align: right;
+            }
+
+            .logout-button {
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-left">
+        <a href="{% url 'login' %}">
+            <i class="fas fa-calculator calculator-icon"></i>
+            <span style="color: white;">Início</span>
+        </a>
+    </div>
+    <div class="header-right">
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="logout-button" style="border-color: #007bff;"><i class="fas fa-sign-out-alt" style="color: #007bff;"></i> Iniciar Sessão</button>
+        </form>
+    </div>
+</header>
+<div class="container">
+    <h2><i class="fas fa-check-circle"></i> Adesão</h2>
+    <form method="post">
+        <p class="instructions required-field">Campos obrigatórios são marcados com um asterisco (<span class="required">*</span>)</p>
+        {% csrf_token %}
+        <div>
+            <label for="id_username">Usuário<span class="required">*</span></label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="error-message">
+                    <ul>
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            <label for="id_last_name">Sobrenome<span class="required">*</span></label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+                <div class="error-message">
+                    <ul>
+                        {% for error in form.last_name.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            <label for="id_email">Email-pessoal<span class="required">*</span></label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="error-message">
+                    <ul>
+                        {% for error in form.email.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            <label for="id_repita_email_pessoal">Repita Email-pessoal<span class="required">*</span></label>
+            {{ form.repita_email_pessoal }}
+            {% if form.repita_email_pessoal.errors %}
+                <div class="error-message">
+                    <ul>
+                        {% for error in form.repita_email_pessoal.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            <label for="id_nome_empresa">Nome da Empresa<span class="required">*</span></label>
+            {{ form.nome_empresa }}
+            {% if form.nome_empresa.errors %}
+                <div class="error-message">
+                    <ul>
+                        {% for error in form.nome_empresa.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            <label for="id_email_empresa">Email da empresa<span class="required">*</span></label>
+            {{ form.email_empresa }}
+            {% if form.email_empresa.errors %}
+                <div class="error-message">
+                    <ul>
+                        {% for error in form.email_empresa.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            <label for="id_repita_email_empresa">Repita Email da empresa<span class="required">*</span></label>
+            {{ form.repita_email_empresa }}
+            {% if form.repita_email_empresa.errors %}
+                <div class="error-message">
+                    <ul>
+                        {% for error in form.repita_email_empresa.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div>
+            <label for="id_telefone">Telefone<span class="required">*</span></label>
+            {{ form.telefone }}
+            {% if form.telefone.errors %}
+                <div class="error-message">
+                    <ul>
+                        {% for error in form.telefone.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <button type="submit">Submeter</button>
+    </form>
+</div>
+<footer>
+    <p>&copy; 2024 MUCANDA TRANSITÁRIO | TODOS OS DIREITOS RESERVADOS | E-mail: suporteaoa.simulador@gmail.com | <a href="https://mucandagroup.com/nossos-servicos/" target="_blank" style="color: yellow;">Serviços aduaneiros</a></p>
+</footer>
+</body>
+</html>

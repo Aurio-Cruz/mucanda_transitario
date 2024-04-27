@@ -1,0 +1,853 @@
+
+{% load static%}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Simulador de Taxas Aduaneiras">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Redirecionar para a página de login se tentar voltar após logout
+        if (performance.navigation.type == 2) {
+            location.reload(true);
+        }
+    </script>
+    <link rel="stylesheet" href="{% static 'css/teste_2.css' %}">
+    <link rel="website icon" type="PNG" href="{% static 'img/favicon simulador.png' %}">
+    <title> Simulador de Taxas Aduaneiras</title>
+</head>
+<body>
+    <br>
+    <center>
+        <h2 class="primary-bg"> <i class="fas fa-calculator"></i> Simulador de Taxas Aduaneiras</h2>
+    </center>
+    <br>
+
+    <div class="category">
+        <h3  class="accent-bg">Instruções de Uso</h3>
+        <p>1. Escolha a categoria dos produtos.</p>
+        <p>2. Selecione o produto específico desejado na lista correspondente.</p>
+        <p>3. As porcentagens do IVA, Emolumentos, Direitos de Importação e Imposto Especial de Consumo serão preenchidos automaticamente.</p>
+        <p>4. Selecione a armazenagem, de acordo o tipo de transportação efectuada (Marítima ou Aérea).</p>
+        <p>5. Selecione a moeda que encontra-se a mercadoria, frete e seguro.</p>
+        <p>6. Preencha e selecione todos os campos de carácter obrigatório,  de forma a garantir exatidão no valor total a ser pago.</p>
+        <p>7. Taxa de câmbio fornecido pelo  <a href="https://www.exchangerate-api.com/" target="_blank">exchangerate-api.com</a></p>
+        <p>8. Caso não encontre a categoria ou produto desejado,  <a href="{% url 'submit_pagina' %}" style="text-decoration: none; color: #007bff;">clique aqui.</a></p>
+    </div>
+
+    <div class="category">
+        <h3 class="accent-bg">Dados Cadastrais</h3>
+            <script>
+                // Definição das taxas de importação por produto
+                var taxasDeImportacao = {
+                'Laptops':2,
+                'Computadores de mesa':2,
+                'Relógios inteligentes': 2,
+                'Telefones sem fio(Smartphone)': 2,
+                'Mosaicos': 50,
+                'Vinho não superior à 2L': 50,
+                'Vinho superior à 2L mas não superior à 10L': 50,
+                'Cerveja com base a fermentação de Malte ou Lupulo': 60,
+                'Whisky': 60,
+                'Sidra': 60,
+                'champagne ou outros': 50,
+                'Refrigerante': 5,
+                'Licor': 60,
+                'Refrigerante': 5,
+                'Água com Gás': 5,
+                'Suco Gaseificado': 5,
+                'motor v8': 16,
+                'Veículos a gasolina de motor de 1 à 1000 cilindradas, de estado novo':2,
+                'Veículos a gasolina de motor de 1 à 1000 cilindradas, de estado usado':5,
+                'Veículos a gasolina de motor de 1000 à 1500 cilindradas, de estado novo':5,
+                'Veículos a gasolina de motor de 1000 à 1500 cilindradas, de estado usado':10,
+                'Veículos a gasolina de motor de 1500 à 3000 cilindradas, de estado novo':10, 
+                'Veículos a gasolina de motor de 1500 à 3000 cilindradas, de estado usado':15,
+                'Veículos a gasolina de motor superior à 3000 cilindradas, de estado novo':15, 
+                'Veículos a gasolina de motor superior a 3000 cilindradas, de estado usado':20,
+                'Veículos a gasóleo de motor de 1 à 1500 cilindradas, de estado novo': 5, 
+                'Veículos a gasóleo de motor de 1 à 1500 cilindradas, de estado usado':10,
+                'Veículos a gasóleo de motor de 1500 à 2500 cilindradas, de estado novo':10, 
+                'Veículos a gasóleo de motor de 1500 à 2500 cilindradas, de estado usado':15,
+                'Veículos a gasóleo de motor superior à 2500 cilindradas, de estado novo':15, 
+                'Veículos a gasóleo de motor superior à 2500 cilindradas, de estado usado':20,
+                };
+
+                // Definição das taxas de imposto especial de consumo por produto
+                var taxasDeImpostoEspecial = {
+                'Laptops':0,
+                'Computadores de mesa':0,
+                'Relógios inteligentes': 0,
+                'Telefones sem fio(Smartphone)': 0,
+                'Mosaicos': 0,
+                'Vinho não superior à 2L': 8,
+                'Vinho superior à 2L mas não superior à 10L': 8,
+                'Cerveja com base a fermentação de Malte ou Lupulo': 4,
+                'Whisky': 8,
+                'Sidra': 8,
+                'champagne ou outros': 8,
+                'Refrigerante': 5,
+                'Licor': 8,
+                'Água com Gás': 5,
+                'Suco Gaseificado': 5,
+                'Água': 0,
+                'motor v8': 0,
+                'Veículos a gasolina de motor de 1 à 1000 cilindradas, de estado novo':0,
+                'Veículos a gasolina de motor de 1 à 1000 cilindradas, de estado usado':0,
+                'Veículos a gasolina de motor de 1000 à 1500 cilindradas, de estado novo':0,
+                'Veículos a gasolina de motor de 1000 à 1500 cilindradas, de estado usado':0,
+                'Veículos a gasolina de motor de 1500 à 3000 cilindradas, de estado novo':0, 
+                'Veículos a gasolina de motor de 1500 à 3000 cilindradas, de estado usado':0,
+                'Veículos a gasolina de motor superior à 3000 cilindradas, de estado novo':5, 
+                'Veículos a gasolina de motor superior a 3000 cilindradas, de estado usado':5,
+                'Veículos a gasóleo de motor de 1 à 1500 cilindradas, de estado novo': 0, 
+                'Veículos a gasóleo de motor de 1 à 1500 cilindradas, de estado usado':0,
+                'Veículos a gasóleo de motor de 1500 à 2500 cilindradas, de estado novo':0, 
+                'Veículos a gasóleo de motor de 1500 à 2500 cilindradas, de estado usado':0,
+                'Veículos a gasóleo de motor superior à 2500 cilindradas, de estado novo':5, 
+                'Veículos a gasóleo de motor superior à 2500 cilindradas, de estado usado':5,
+                };
+
+                function atualizarProdutos() {
+                    var categoriaSelect = document.getElementById('categoriadosproduto');
+                    var produtosSelect = document.getElementById('produtos');
+                    var categoriaSelecionada = categoriaSelect.value;
+
+                    var container = document.querySelector('.container');
+                    container.classList.add('animate__animated', 'animate__fadeIn');
+
+                    var produtos;
+                    switch (categoriaSelecionada) {
+                        case 'mosaicos':
+                        produtos = ['Mosaicos'];
+                        break;
+
+                    case 'electronicos':
+                        produtos = ['Telefones sem fio(Smartphone)','Relógios inteligentes', 'Laptops', 'Computadores de mesa' ];
+                        break;
+
+                    case 'viaturas':
+                        produtos = ['Veículos a gasolina de motor de 1 à 1000 cilindradas, de estado novo','Veículos a gasolina de motor de 1 à 1000 cilindradas, de estado usado','Veículos a gasolina de motor de 1000 à 1500 cilindradas, de estado novo', 'Veículos a gasolina de motor de 1000 à 1500 cilindradas, de estado usado','Veículos a gasolina de motor de 1500 à 3000 cilindradas, de estado novo', 'Veículos a gasolina de motor de 1500 à 3000 cilindradas, de estado usado','Veículos a gasolina de motor superior à 3000 cilindradas, de estado novo', 'Veículos a gasolina de motor superior a 3000 cilindradas, de estado usado',
+                    'Veículos a gasóleo de motor de 1 à 1500 cilindradas, de estado novo', 'Veículos a gasóleo de motor de 1 à 1500 cilindradas, de estado usado', 'Veículos a gasóleo de motor de 1500 à 2500 cilindradas, de estado novo', 'Veículos a gasóleo de motor de 1500 à 2500 cilindradas, de estado usado','Veículos a gasóleo de motor superior à 2500 cilindradas, de estado novo', 'Veículos a gasóleo de motor superior à 2500 cilindradas, de estado usado' ];
+                        break;
+
+                    case 'pecas':
+                        produtos = ['motor v8'];
+                        break;
+
+                    case 'bebidasalcoolicas':
+                        produtos = ['Vinho não superior à 2L','Vinho superior à 2L mas não superior à 10L','Cerveja com base a fermentação de Malte ou Lupulo', 'Sidra', 'Whisky', 'Licor', 'champagne ou outros', ];
+                        break;
+
+                    default:
+                        produtos = [];
+                        break;
+                    }
+
+                    produtosSelect.innerHTML = '';
+
+                    for (var i = 0; i < produtos.length; i++) {
+                        var option = document.createElement('option');
+                        option.value = produtos[i];
+                        option.text = produtos[i];
+                        produtosSelect.appendChild(option);
+                    }
+                    // Função para atualizar a lista de produtos com base na categoria selecionada
+                    atualizarTaxaDeImportacao(); // Chama a função para atualizar a taxa de importação quando muda a categoria
+                    }
+                    // Função para atualizar a taxa de importação com base no produto selecionado
+                    function atualizarTaxaDeImportacao() {
+                    var produtosSelect = document.getElementById('produtos');
+                    var produtoSelecionado = produtosSelect.value;
+
+                    var resultDiv = document.getElementById('resultadoContainer');
+                    resultDiv.classList.add('animate__animated', 'animate__fadeIn');
+
+                    var taxaDeImportacao = taxasDeImportacao[produtoSelecionado] || 0;
+                    var taxaDeImpostoEspecial = taxasDeImpostoEspecial[produtoSelecionado] || 0;
+
+                    document.getElementById('direitosdeimportacao').value = taxaDeImportacao;
+                    document.getElementById('impostodeconsumo').value = taxaDeImpostoEspecial;
+                    }
+            </script>
+        
+        <div class="container">
+            <strong><label for="categoriadosproduto" class="required">Categoria Dos Produtos:</label></strong> 
+            <select id="categoriadosproduto" onchange="atualizarProdutos()" required>
+                <option value=""> Selecione a Categoria do Produto </option>
+                <option value="bebidasalcoolicas"> Bebidas Alcóolicas</option>   
+
+                {% if pertence_grupo_electronicos %}
+                <option value="electronicos"> Electrónicos</option>
+                {% endif %}
+
+                <option value="mosaicos"> Mosaicos</option>
+                <option value="pecas"> Peças de Automóveis</option>
+                
+                {% if pertence_grupo_viaturas %}
+                    <option value="viaturas"> Viaturas</option>
+                {% endif %}
+            </select>
+            <span id="categoriadosproduto-error" class="error-message">Campo obrigatório</span>
+            <br>
+            <br>
+        </div>
+
+        <!-- Seleção de Produtos -->
+        <strong><label for="produtos" class="required">Produtos:</label></strong>
+        <select id="produtos" onchange="atualizarTaxaDeImportacao()" required> 
+        <!-- As opções de produtos serão adicionadas dinamicamente -->
+        </select>
+        <span id="produtos-error" class="error-message">Campo obrigatório</span>
+        <br>
+        
+        <br>
+
+        <strong><label for="direitosdeimportacao">Imposto Sobre Importação (D.I % ):</label></strong>  
+        <input type="text" id="direitosdeimportacao" value="" readonly>
+
+        <strong><label for="emolumentos">Emolumentos Gerais Aduaneiros (E.G.A %):</label></strong>
+        <input type="text" id="emolumentos" value="2" readonly>
+        
+        <strong><label for="impostodeconsumo">Imposto Especial de Consumo (I.E.C %):</label></strong>
+        <input type="text" id="impostodeconsumo" value="" readonly>
+        
+
+        <strong><label for="iva">Imposto Sobre Valor Acrescentado (IVA %):</label></strong>
+        <input type="text" id="iva" value="14" readonly>
+
+        <h3> Região:</h3>
+
+    <div>
+        <input type="text" id="meuInput" value="Luanda" name="meuInput" class="tamanho-luanda" readonly>
+    </div>
+
+    </div>
+    </div>
+
+    <div> 
+        <select id="carga" onchange="alternarExibicao()" required>
+           <strong><option value="" selected> Selecione o tipo de carga</option></strong>
+            <option value="aereo">Aéreo</option>
+            <option value="terminal">Marítimo</option>
+            <option value="maritimo2">Marítimo</option>
+        </select>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Ocultar "Marítimo_1" e "Marítimo_2" como opções inicialmente
+                var opcaoMaritimo1 = document.querySelector('option[value="terminal"]');
+                var opcaoMaritimo2 = document.querySelector('option[value="maritimo2"]');
+                opcaoMaritimo1.style.display = 'none';
+                opcaoMaritimo2.style.display = 'none';
+        
+                // Adicionar eventos de mudança à carga e à categoria de produtos
+                var cargaSelecionada = document.getElementById('carga');
+                cargaSelecionada.addEventListener('change', function () {
+                    limparCampos();
+                    alternarExibicao();
+                });
+        
+                var categoriaProdutoSelecionada = document.getElementById('categoriadosproduto');
+                categoriaProdutoSelecionada.addEventListener('change', alternarExibicao);
+                limparCampos();
+                alternarExibicao();
+            });
+        
+            function alternarExibicao() {
+                var cargaSelecionada = document.getElementById('carga');
+                var categoriaProdutoSelecionada = document.getElementById('categoriadosproduto').value;
+        
+                // Esconder todas as divs
+                document.querySelector('.AÉRO').style.display = 'none';
+                document.querySelector('.MARÍTIMO_1').style.display = 'none';
+                document.querySelector('.Marítimo_2').style.display = 'none';
+        
+                // Mostrar a div correspondente à carga selecionada
+                if (cargaSelecionada.value === 'aereo') {
+                    document.querySelector('.AÉRO').style.display = 'block';
+                } else if (cargaSelecionada.value === 'maritimo2' && categoriaProdutoSelecionada === 'viaturas') {
+                    document.querySelector('.Marítimo_2').style.display = 'block';
+                } else if (cargaSelecionada.value === 'terminal' && categoriaProdutoSelecionada !== 'viaturas') {
+                    document.querySelector('.MARÍTIMO_1').style.display = 'block';
+                }
+        
+                // Ocultar "Marítimo_1" como opção se a categoria de produto for "Viaturas"
+                var opcaoMaritimo1 = document.querySelector('option[value="terminal"]');
+                if (categoriaProdutoSelecionada === 'viaturas') {
+                    opcaoMaritimo1.style.display = 'none';
+                    opcaoMaritimo1.disabled = true; // Desabilitar a opção
+                    opcaoMaritimo1.selected = false; // Desmarcar a opção se estiver selecionada
+                } else {
+                    opcaoMaritimo1.style.display = 'block';
+                    opcaoMaritimo1.disabled = false; // Habilitar a opção
+                }
+        
+                // Ocultar "Marítimo_2" como opção se a categoria de produto não for "Viaturas"
+                var opcaoMaritimo2 = document.querySelector('option[value="maritimo2"]');
+                if (categoriaProdutoSelecionada !== 'viaturas') {
+                    opcaoMaritimo2.style.display = 'none';
+                    opcaoMaritimo2.disabled = true; // Desabilitar a opção
+                    opcaoMaritimo2.selected = false; // Desmarcar a opção se estiver selecionada
+                } else {
+                    opcaoMaritimo2.style.display = 'block';
+                    opcaoMaritimo2.disabled = false; // Habilitar a opção
+                }
+            }
+        
+            function limparCampos() {
+                // Limpa os valores dos campos
+                document.getElementById('peso').value = '';
+                document.getElementById('dias').value = '';
+                document.getElementById('taxa_sga_usd').value = '';
+                document.getElementById('taxa_sga_aoa').value = '';
+                document.getElementById('contentor-ep14').value = '';
+                document.getElementById('quantidade-ep14').value = '';
+                document.getElementById('valor_contentor_ep14').value = '';
+                document.getElementById('valor_unitario_ep14').value = '';
+                document.getElementById('valor_unitario_ep14_aoa').value = '';
+                document.getElementById('valor_contentor').value = '';
+                document.getElementById('taxa_terminal_usd').value = '';
+                document.getElementById('taxa_terminal_aoa').value = '';
+                document.getElementById('quantidade_viaturas').value = '';
+                document.getElementById('viaturas_usd').value = '';
+                document.getElementById('viaturas_aoa').value = '';
+                document.getElementById('taxa_terminal_usd_mr2').value = '';
+                document.getElementById('taxa_terminal_aoa_mr2').value = '';
+            }
+        </script>
+    </div>
+
+
+
+    <div class="AÉRO">
+        <h3>SGA</h3>
+        <label for="peso" class="required"><strong>Peso da mercadoria</strong> (em quilos)</label>
+        <input type="number" id="peso" placeholder="Insira o peso da mercadoria" min="1" max="50000" required>
+        <span id="peso-error" class="error-message">Campo obrigatório</span>
+        <br>
+        <br>
+
+        <strong><label for="dias" class="required">Número de dias</label></strong>
+        <select id="dias" required>
+            <option value="">Selecione a Quantidade de Dias</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        <span id="dias-error" class="error-message">Campo obrigatório</span>
+        <br>
+        <br>
+
+        <label for="taxa_sga_usd" class="required"><strong> Taxa do SGA(USD)</strong></label>
+        <input type="text" id="taxa_sga_usd">
+
+        <label for="taxa_sga_aoa"><strong> Taxa do SGA(AOA)</strong></label>
+        <input type="text" id="taxa_sga_aoa">
+
+        <script>
+
+            document.getElementById("dias").addEventListener("change", async function () {
+    
+                var pesoMercadoria = parseFloat(document.getElementById("peso").value);
+        
+                if (pesoMercadoria <= 0) {
+                    alert("Por favor, insira um peso válido para a mercadoria");
+                    document.getElementById("peso").value = ""; // Limpa o campo de peso
+                    return;
+                }
+    
+                if (pesoMercadoria > 50000) {
+                    alert("O peso da mercadoria não pode ser superior a 50 toneladas.");
+                    document.getElementById("peso").value = ""; // Limpa o campo de peso
+                    return;
+                }
+        
+                var diasSelecionados = document.getElementById("dias").value;
+        
+                var total = 0;
+        
+                for (var i = 1; i <= diasSelecionados; i++) {
+                    if (i <= 3) {
+                        total += 0.03 * pesoMercadoria;
+                    } else if (i <= 6) {
+                        total += 0.04 * pesoMercadoria;
+                    } else if (i <= 9) {
+                        total += 0.05 * pesoMercadoria;
+                    } else if (i <= 12) {
+                        total += 0.06 * pesoMercadoria;
+                    } else if (i <= 15) {
+                        total += 0.07 * pesoMercadoria;
+                    } else if (i <= 18) {
+                        total += 0.08 * pesoMercadoria;
+                    } else {
+                        total += 0.09 * pesoMercadoria;
+                    }
+                }
+        
+                document.getElementById('taxa_sga_usd').value = 'USD ' + total.toFixed(2)
+        
+                const taxaDeCambio = await obterTaxaDeCambio();
+        
+                if (taxaDeCambio !== null) {
+                    var resultadoAOA = total * taxaDeCambio;
+                    document.getElementById("taxa_sga_aoa").value ='AOA ' + resultadoAOA.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+            });
+        
+            async function obterTaxaDeCambio() {
+                try {
+                    const resposta = await axios.get('https://v6.exchangerate-api.com/v6/974f464b9a98fdedd6ce4927/latest/USD');
+                    const taxaDeCambio = resposta.data.conversion_rates.AOA;
+                    return taxaDeCambio;
+                } catch (erro) {
+                    console.error('Erro ao obter a taxa de câmbio:', erro);
+                    return null;
+                }
+            }
+        </script>
+    </div>
+
+    <div class="MARÍTIMO_1">
+        <h3 class="accent-bg">EP-14</h3>
+        <strong><label for="contentor-ep14" class="required"> Categoria do Contentor</label></strong>
+        <select id="contentor-ep14" onchange="atualizarValor()"  required>
+            <option value="" class="required"> Selecione o Contentor</option>
+            <option value="contentor_20"> Contentor de 20P</option>
+            <option value="contentor_40"> Contentor de 40P</option>
+        </select>
+        <span id="contentor-ep14-error" class="error-message">Campo obrigatório</span>
+        <br>
+        <br>
+    
+        <strong><label for="quantidade-ep14" class="required"> Quantidade de Contentores</label></strong>
+        <select id="quantidade-ep14" onchange="atualizarValor()" required>
+            <option value=""> Selecione a quantidade de contentores</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+            <option value="24">24</option>
+            <option value="25">25</option>
+            <option value="26">26</option>
+            <option value="27">27</option>
+            <option value="28">28</option>
+            <option value="29">29</option>
+            <option value="30">30</option>
+            <option value="31">31</option>
+            <option value="32">32</option>
+            <option value="33">33</option>
+            <option value="34">34</option>
+            <option value="35">35</option>
+            <option value="36">36</option>
+            <option value="37">37</option>
+            <option value="38">38</option>
+            <option value="39">39</option>
+            <option value="40">40</option>
+            <option value="41">41</option>
+            <option value="42">42</option>
+            <option value="43">43</option>
+            <option value="44">44</option>
+            <option value="45">45</option>
+            <option value="46">46</option>
+            <option value="47">47</option>
+            <option value="48">48</option>
+            <option value="49">49</option>
+            <option value="50">50</option>
+        
+        </select>
+        <span id="quantidade-ep14-error" class="error-message">Campo obrigatório</span>
+        <br>
+        <br>
+    
+        <strong><label for="valor_contentor_ep14"> Valor Unitário do Contentor(EP-14) :</label></strong>
+        <input type="text" id="valor_contentor_ep14" value="" readonly>
+    
+        <strong><label for="valor_unitario_ep14"> Taxa do EP-14(USD):</label></strong>
+        <input type="text" id="valor_unitario_ep14" value="" readonly>
+    
+        <strong><label for="valor_unitario_ep14_aoa"> Taxa do EP-14(AOA)</label></strong>
+        <input type="text" id="valor_unitario_ep14_aoa" value="" readonly>
+
+        <h3 class="accent-bg">Terminal</h3>
+
+        <strong><label for="valor_contentor"> Valor Unitário do Contentor(Terminal) :</label></strong>
+        <input type="text" id="valor_contentor" value="" readonly>
+    
+        <strong><label for="taxa_terminal_usd"> Taxa do Terminal(USD)</label></strong>
+        <input type="text" id="taxa_terminal_usd" value="" readonly>
+    
+        <strong><label for="taxa_terminal_aoa"> Taxa do terminal(AOA)</label></strong>
+        <input type="text" id="taxa_terminal_aoa" value="" readonly>
+    
+        <script>
+            const API_KEY_EP14 = '974f464b9a98fdedd6ce4927';
+            const API_URL_EP14 = 'https://v6.exchangerate-api.com/v6/974f464b9a98fdedd6ce4927/latest/USD';
+    
+            async function obterTaxaDeCambioEP14() {
+                try {
+                    const resposta = await axios.get(API_URL_EP14);
+                    const taxaDeCambio = resposta.data.conversion_rates.AOA;
+                    return taxaDeCambio;
+                } catch (erro) {
+                    console.error('Erro ao obter a taxa de câmbio:', erro);
+                    return null;
+                }
+            }
+
+            function atualizarValor() {
+                const contentorSelect = document.getElementById("contentor-ep14");
+                const quantidadeSelect = document.getElementById("quantidade-ep14");
+                const valorContentorEP14Input = document.getElementById("valor_contentor_ep14");
+                const valorUnitarioEP14Input = document.getElementById("valor_unitario_ep14");
+                const valorUnitarioEP14AOAInput = document.getElementById("valor_unitario_ep14_aoa");
+                const valorContentorTerminalInput = document.getElementById("valor_contentor");
+                const resultadoTerminalUSDInput = document.getElementById("taxa_terminal_usd");
+                const resultadoTerminalAOAInput = document.getElementById("taxa_terminal_aoa");
+    
+                const contentor = contentorSelect.value;
+                const quantidade = quantidadeSelect.value;
+    
+                if (contentor === "contentor_20") {
+                    valorContentorEP14Input.value = "106.36";
+                    valorUnitarioEP14Input.value = (106.36 * quantidade).toFixed(2);
+                } else if (contentor === "contentor_40") {
+                    valorContentorEP14Input.value = "168.12";
+                    valorUnitarioEP14Input.value = (168.12 * quantidade).toFixed(2);
+                }
+    
+                obterTaxaDeCambioEP14().then(taxaDeCambio => {
+                    if (taxaDeCambio !== null) {
+                        valorUnitarioEP14AOAInput.value = formatarMoeda(valorUnitarioEP14Input.value * taxaDeCambio);
+                    }
+                });
+    
+                if (contentor === "contentor_20") {
+                    valorContentorTerminalInput.value = "327";
+                    resultadoTerminalUSDInput.value = (327 * quantidade).toFixed(2);
+                } else if (contentor === "contentor_40") {
+                    valorContentorTerminalInput.value = "520";
+                    resultadoTerminalUSDInput.value = (520 * quantidade).toFixed(2);
+                }
+    
+                obterTaxaDeCambioEP14().then(taxaDeCambio => {
+                    if (taxaDeCambio !== null) {
+                        resultadoTerminalAOAInput.value = formatarMoeda(resultadoTerminalUSDInput.value * taxaDeCambio);
+                    }
+                });
+                function formatarMoeda(valor) {
+                    return `AOA ${Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                }
+            }
+
+        </script>
+
+    </div>
+
+    <div class="Marítimo_2" >
+        <h3 class="accent-bg">EP-14</h3>
+        <strong><label for="quantidade_viaturas" class="required">Quantidade de viaturas</label></strong>
+        <select id="quantidade_viaturas" onchange="calcularTaxas()" required>
+            <option value="">Selecione o número de viaturas</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        <span id="quantidade_viaturas-error" class="error-message">Campo obrigatório</span>
+        <br>
+        <br>
+        
+
+        <strong><label for="viaturas_usd">Taxa do EP-14(USD)</label></strong>
+        <input type="text" id="viaturas_usd" readonly>
+
+        <strong><label for="viaturas_aoa">Taxa do EP-14(AOA)</label></strong>
+        <input type="text" id="viaturas_aoa" readonly>
+        <br>
+
+        <h3 class="accent-bg">Terminal</h3>
+        
+        <strong><label for="taxa_terminal_usd_mr2">Taxa do Terminal(USD)</label></strong>
+        <input type="text" id="taxa_terminal_usd_mr2" readonly>
+
+        <strong><label for="taxa_terminal_aoa_mr2">Taxa do Terminal(AOA)</label></strong>
+        <input type="text" id="taxa_terminal_aoa_mr2" readonly>
+    </div>
+
+    <script>
+        const API_KEY_EP15 = '974f464b9a98fdedd6ce4927';
+        const API_URL_EP15 = 'https://v6.exchangerate-api.com/v6/974f464b9a98fdedd6ce4927/latest/USD';
+
+        async function obterTaxaDeCambioEP14() {
+            try {
+                const resposta = await axios.get(API_URL_EP14);
+                const taxaDeCambio = resposta.data.conversion_rates.AOA;
+                return taxaDeCambio;
+            } catch (erro) {
+                console.error('Erro ao obter a taxa de câmbio:', erro);
+                return null;
+            }
+        }
+
+        async function calcularTaxas() {
+            const quantidadeViaturas = document.getElementById('quantidade_viaturas').value;
+
+            if (quantidadeViaturas) {
+                const taxaEP14USD = 20.63 * quantidadeViaturas;
+                const taxaEP14AOA = await obterTaxaDeCambioEP14() * taxaEP14USD;
+                const taxaTerminalUSD = 41.87 * quantidadeViaturas;
+                const taxaTerminalAOA = await obterTaxaDeCambioEP14() * taxaTerminalUSD;
+
+                document.getElementById('viaturas_usd').value = formatarNumero(taxaEP14USD);
+                document.getElementById('viaturas_aoa').value = formatarNumero(taxaEP14AOA);
+                document.getElementById('taxa_terminal_usd_mr2').value = formatarNumero(taxaTerminalUSD);
+                document.getElementById('taxa_terminal_aoa_mr2').value = formatarNumero(taxaTerminalAOA);
+            } else {
+                // Limpar os campos se nenhum valor for selecionado
+                document.getElementById('viaturas_usd').value = '';
+                document.getElementById('viaturas_aoa').value = '';
+                document.getElementById('taxa_terminal_usd_mr2').value = '';
+                document.getElementById('taxa_terminal_aoa_mr2').value = '';
+            }
+        }
+
+        function formatarNumero(valor) {
+            return valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+    </script>
+    </div>
+
+    <div class="category">
+
+        <h3 class="accent-bg">Valores</h3>
+
+        <strong><label for="moedas" class="required"> Moedas:</label></strong>
+        <select id="moedas" name="moedas" onchange="atualizarMoeda()" required>
+            <option value=""> Selecione a moeda</option>
+            <option value="AOA">Kwanza Angolano (AOA)</option>
+            <option value="AUD">Dólar Australiano (AUD)</option>
+            <option value="BRL">Real Brasileiro (BRL)</option>
+            <option value="CAD">Dólar Canadense (CAD)</option>
+            <option value="CHF">Franco Suíço (CHF)</option>
+            <option value="CNY">Yuan Chinês (CNY)</option>
+            <option value="EUR">Euro (EUR)</option>
+            <option value="GBP">Libra Esterlina (GBP)</option>
+            <option value="INR">Rúpia Indiana (INR)</option>
+            <option value="JPY">Iene Japonês (JPY)</option>
+            <option value="NOK">Coroa Norueguesa (NOK)</option>
+            <option value="NZD">Dólar Neozelandês (NZD)</option>
+            <option value="SEK">Coroa Sueca (SEK)</option>
+            <option value="SGD">Dólar de Singapura (SGD)</option>
+            <option value="USD">Dólar Americano (USD)</option>
+            <option value="ZAR">Rand Sul-Africano (ZAR)</option>
+        </select>
+        <span id="moedas-error" class="error-message">Campo obrigatório</span>
+        <br>
+        <br>
+
+        <strong><label for="mercadoria"  class="required">Mercadoria:</label></strong>
+        <input type="text" id="mercadoria" placeholder="Insira o valor da Mercadoria" oninput="formatarValor(this)" required>
+        <span id="mercadoria-error" class="error-message">Campo obrigatório</span>
+        <br>
+        <br>
+        <strong><label for="frete"class="required">Frete:</label></strong>
+        <input type="text" id="frete" placeholder="Insira o valor do frete" oninput="formatarValor(this)" required>
+        <span id="frete-error" class="error-message">Campo obrigatório</span>
+        <br>
+        <br>
+
+        <strong><label for="seguro">Seguro</strong> (opcional):</label>
+        <input type="text" id="seguro" placeholder="Insira o valor do seguro (opcional)" oninput="formatarValor(this)">
+
+        <p><strong>Obs.: Seguro incluso ou não, ao valor do frete </strong></p> 
+        <br>
+
+        <center>
+            <button id="calcularButton" onclick="calcularTotal()">Calcular Total</button>
+            <div id="resultadoContainer"> <span id="resultado"></span> </div>
+        </center>
+
+        <br>
+        <br>
+        <center>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Encerrar sessão no sistema</button>
+            </form>
+        </center>
+
+        <p style="text-align: center; margin-top: 20px; font-style: italic; font-size: 14px;">
+            O valor apresentado pelo nosso Simulador de Taxas Aduaneiras é oferecido de forma indicativa, buscando fornecer uma estimativa quase exata das taxas prováveis e do valor total a ser pago. Entretanto, é crucial entender que esse valor está sujeito a alterações, dependendo das informações especificadas fornecidas na declaração aduaneira, para mais informações não exite em nos contactar.
+        </p> 
+
+        <footer>
+            <p>&copy; 2024 MUCANDA TRANSITÁRIO | TODOS OS DIREITOS RESERVADOS | E-mail: suporteaoa.simulador@gmail.com </p>
+        </footer> 
+        
+        <script> 
+            function formatarMoeda(valor) {
+                return `AOA ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+
+            function formatarValor(input) {
+                // Remove caracteres não numéricos, exceto vírgulas
+                var valorLimpo = input.value.replace(/[^\d,]/g, '');
+
+                // Divide em parte inteira e parte decimal
+                var partes = valorLimpo.split(',');
+
+                // Formata a parte inteira
+                var parteInteiraFormatada = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+                // Adiciona automaticamente a vírgula se houver parte decimal
+                var valorFormatado = parteInteiraFormatada;
+                if (partes.length > 1) {
+                    valorFormatado += ',' + partes[1];
+                }
+
+                // Atualiza o valor no campo de entrada
+                input.value = valorFormatado;
+
+                // Move o cursor para o final do valor formatado
+                input.setSelectionRange(valorFormatado.length, valorFormatado.length);
+            }
+
+            function atualizarMoeda() {
+                    var moedaSelecionada = document.getElementById('moedas').value;
+                    fetch(`https://open.er-api.com/v6/latest/${moedaSelecionada}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            taxaDeCambioAtual = data.rates['AOA'];
+                            converterValores();
+                        });
+                }
+
+                // Para a validação dos campos obrigatórios
+                function validarCamposObrigatorios() {
+                var produtosSelect = document.getElementById('produtos');
+                var categoriaSelect = document.getElementById('categoriadosproduto');
+                var moedaSelect = document.getElementById('moedas');
+                var mercadoriaInput = document.getElementById('mercadoria');
+                var freteInput = document.getElementById('frete');
+                var cargaSelect = document.getElementById('carga');
+
+                var isValid = true;
+
+                if ( produtosSelect.value === '' ||
+                    categoriaSelect.value === '' ||
+                    cargaSelect.value === '' ||
+                    moedaSelect.value === '' ||
+                    mercadoriaInput.value === '' ||
+                    freteInput.value === '') {
+
+                    alert('Por favor, Preencha Todos os Campos de Carácter Obrigatório');
+                    isValid = false;
+                    return isValid;
+                }
+
+                document.getElementById('produtos-error').style.display = 'none';
+                document.getElementById('categoriadosproduto-error').style.display = 'none';
+                document.getElementById('moedas-error').style.display = 'none';
+
+                mercadoriaInput.style.borderBottom = '2px solid #ccc';
+                freteInput.style.borderBottom = '2px solid #ccc';
+
+                return isValid;
+                }
+
+                function calcularTudo() {
+                    if (validarCamposObrigatorios()) {
+                        atualizarProdutos();
+                        calcularTotal();
+                        converterValores();
+                    }
+                }
+                function calcularTotal() {
+                    if (!validarCamposObrigatorios()) {
+                        return;
+                    }
+                    converterValores();
+                }
+                function converterValores() {
+                var mercadoria = parseFloat(document.getElementById('mercadoria').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                var frete = parseFloat(document.getElementById('frete').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                var seguro = parseFloat(document.getElementById('seguro').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                var taxaDeImportacao = parseFloat(document.getElementById('direitosdeimportacao').value) || 0;
+                var taxaDeImpostoEspecial = parseFloat(document.getElementById('impostodeconsumo').value) || 0;
+                var taxaDeEmolumentos = parseFloat(document.getElementById('emolumentos').value) || 0;
+                var taxaDeIva = parseFloat(document.getElementById('iva').value) || 0;
+                var valor_sga_aoa = parseFloat(document.getElementById('taxa_sga_aoa').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                var valor_ep14_1_aoa = parseFloat(document.getElementById('valor_unitario_ep14_aoa').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                var valor_terminal1= parseFloat(document.getElementById('taxa_terminal_aoa').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                var valor_ep14_2_aoa= parseFloat(document.getElementById('viaturas_aoa').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                var valor_terminal2= parseFloat(document.getElementById('taxa_terminal_aoa_mr2').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                
+
+                // Converte valores para AOA usando a taxa de câmbio atual
+                var valorMercadoriaAOA = mercadoria * taxaDeCambioAtual;
+                var valorFreteAOA = frete * taxaDeCambioAtual;
+                var valorSeguroAOA = seguro * taxaDeCambioAtual;
+
+                // Calcula os valores individuais
+                var resultadoDireitosImportacao = (valorMercadoriaAOA + valorFreteAOA + valorSeguroAOA) * (taxaDeImportacao / 100);
+                var resultadoEmolumentos = (valorMercadoriaAOA + valorFreteAOA + valorSeguroAOA) * (taxaDeEmolumentos / 100);
+                var resultadoImpostoEspecial = (valorMercadoriaAOA + valorFreteAOA + valorSeguroAOA) * (taxaDeImpostoEspecial / 100);
+
+                var baseIva = valorMercadoriaAOA + valorFreteAOA + valorSeguroAOA + resultadoDireitosImportacao + resultadoEmolumentos + resultadoImpostoEspecial;
+
+                // Calcula o resultado do IVA sobre a base
+                var resultadoIva = baseIva * (taxaDeIva / 100);
+
+                // Calcula o total em AOA
+                var totalAOA = resultadoDireitosImportacao + resultadoEmolumentos + resultadoIva + resultadoImpostoEspecial;
+                var totalimposto_armazenamento = totalAOA + valor_sga_aoa + valor_ep14_1_aoa + valor_terminal1 + valor_ep14_2_aoa + valor_terminal2;  
+
+                // Exibe os resultados individualmente
+                document.getElementById('resultado').innerHTML = `<strong>Valor do D.I:</strong> <strong>${formatarMoeda(resultadoDireitosImportacao)}</strong><br>
+                                                <strong>Valor do EGA:</strong> <strong>${formatarMoeda(resultadoEmolumentos)}</strong><br>
+                                                <strong>Valor do IEC:</strong> <strong>${formatarMoeda(resultadoImpostoEspecial)}</strong><br>
+                                                <strong>Valor do IVA:</strong> <strong>${formatarMoeda(resultadoIva)}</strong><br>
+                                                <strong>Total a Ser Pago de Impostos:</strong> <strong>${formatarMoeda(totalAOA)}</strong><br>
+                                                <strong>Total a Ser Pago de impostos e armazenamento:</strong> <strong>${formatarMoeda(totalimposto_armazenamento)}</strong>`;
+                }
+        </script>
+    
+    </div>
+</body>
+</html>
